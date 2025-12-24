@@ -7,7 +7,7 @@ fastapi==0.109.0
 uvicorn[standard]==0.27.0
 
 # Anthropic Claude API client
-anthropic==0.26.1
+anthropic>=0.75.0
 
 # Environment variable management
 python-dotenv==1.0.1

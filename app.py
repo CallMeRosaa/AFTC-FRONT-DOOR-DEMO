@@ -225,8 +225,9 @@ async def process_intake(request: IntakeRequest):
     """
     try:
         # Call Anthropic Messages API
+        # Using Claude 3 Haiku (fastest, most compatible model)
         message = anthropic_client.messages.create(
-            model="claude-3-5-sonnet-20241022",
+            model="claude-3-haiku-20240307",
             max_tokens=request.max_tokens,
             temperature=request.temperature,
             system=SYSTEM_PROMPT,
