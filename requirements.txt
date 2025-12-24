@@ -1,10 +1,10 @@
 # AFTC Front Door Demo - Python Dependencies
 
 # FastAPI web framework
-fastapi==0.109.0
+fastapi==0.115.0
 
 # ASGI server for FastAPI
-uvicorn[standard]==0.27.0
+uvicorn[standard]==0.32.1
 
 # Anthropic Claude API client
 anthropic>=0.75.0
@@ -12,5 +12,5 @@ anthropic>=0.75.0
 # Environment variable management
 python-dotenv==1.0.1
 
-# Pydantic for data validation (included with FastAPI but explicit for clarity)
-pydantic==2.6.0
+# Pydantic for data validation (Python 3.13 compatible)
+pydantic==2.10.3
