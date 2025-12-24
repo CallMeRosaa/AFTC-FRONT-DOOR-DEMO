@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AFTC Front Door - Test Request Intake Demo</title>
+    <style>
+        /* ===== SCREEN STYLES (Dark Theme) ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            color: #4fc3f7;
+            font-size: 2em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(79, 195, 247, 0.3);
+        }
+
+        .subtitle {
+            color: #90caf9;
+            font-size: 1.1em;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .panel h2 {
+            color: #4fc3f7;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #4fc3f7;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #90caf9;
+            font-weight: 500;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            color: #e0e0e0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            resize: vertical;
+            min-height: 200px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #4fc3f7;
+            box-shadow: 0 0 10px rgba(79, 195, 247, 0.3);
+        }
+
+        select, input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            color: #e0e0e0;
+            font-size: 0.95em;
+        }
+
+        select:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: #4fc3f7;
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .controls-row .form-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4fc3f7 0%, #2196f3 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 195, 247, 0.4);
+        }
+
+        .btn-primary:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-export {
+            background: linear-gradient(135deg, #66bb6a 0%, #43a047 100%);
+            color: white;
+        }
+
+        .btn-export:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 187, 106, 0.4);
+        }
+
+        .btn-export:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Readiness Badge */
+        .readiness-badge {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .badge-green {
+            background: linear-gradient(135deg, #66bb6a 0%, #43a047 100%);
+            color: white;
+        }
+
+        .badge-amber {
+            background: linear-gradient(135deg, #ffa726 0%, #fb8c00 100%);
+            color: white;
+        }
+
+        .badge-red {
+            background: linear-gradient(135deg, #ef5350 0%, #e53935 100%);
+            color: white;
+        }
+
+        .badge-unknown {
+            background: rgba(255, 255, 255, 0.1);
+            color: #999;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Output Panels */
+        .output-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .output-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 100px;
+        }
+
+        .output-panel h3 {
+            color: #4fc3f7;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            border-bottom: 1px solid rgba(79, 195, 247, 0.3);
+            padding-bottom: 5px;
+        }
+
+        .output-panel .content {
+            color: #e0e0e0;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .output-panel.empty .content {
+            color: #777;
+            font-style: italic;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #4fc3f7;
+        }
+
+        .spinner {
+            border: 3px solid rgba(79, 195, 247, 0.3);
+            border-top: 3px solid #4fc3f7;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: rgba(239, 83, 80, 0.2);
+            border: 1px solid #ef5350;
+            color: #ffcdd2;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #777;
+            font-size: 0.9em;
+        }
+
+        /* ===== PRINT STYLES (PDF Export) ===== */
+        @media print {
+            body {
+                background: white;
+                color: black;
+                padding: 0;
+                margin: 0;
+            }
+
+            /* Hide everything except SOR panel */
+            header,
+            .input-panel,
+            .readiness-badge,
+            .output-panel:not(.sor-panel),
+            .button-group,
+            footer,
+            .no-print {
+                display: none !important;
+            }
+
+            .container {
+                max-width: 100%;
+            }
+
+            .main-content {
+                display: block;
+            }
+
+            .panel {
+                background: white;
+                border: none;
+                padding: 20px;
+                page-break-inside: avoid;
+            }
+
+            /* PDF Header */
+            .pdf-header {
+                display: block !important;
+                text-align: center;
+                margin-bottom: 30px;
+                padding-bottom: 15px;
+                border-bottom: 3px solid #2196f3;
+            }
+
+            .pdf-header h1 {
+                color: #2196f3;
+                font-size: 24pt;
+                margin-bottom: 5px;
+                text-shadow: none;
+            }
+
+            .pdf-header .subtitle {
+                color: #333;
+                font-size: 14pt;
+            }
+
+            /* SOR Panel in Print */
+            .sor-panel {
+                display: block !important;
+                background: white;
+                border: 1px solid #ddd;
+                border-radius: 0;
+                padding: 20px;
+            }
+
+            .sor-panel h3 {
+                color: #2196f3;
+                font-size: 16pt;
+                margin-bottom: 15px;
+                border-bottom: 2px solid #2196f3;
+            }
+
+            .sor-panel .content {
+                color: black;
+                font-family: 'Times New Roman', serif;
+                font-size: 12pt;
+                line-height: 1.8;
+                white-space: pre-wrap;
+            }
+
+            /* PDF Footer */
+            .pdf-footer {
+                display: block !important;
+                margin-top: 40px;
+                padding-top: 15px;
+                border-top: 1px solid #ddd;
+                text-align: center;
+                font-size: 10pt;
+                color: #666;
+            }
+
+            @page {
+                margin: 1in;
+            }
+        }
+
+        /* Hidden elements for PDF */
+        .pdf-header,
+        .pdf-footer {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- PDF Header (only visible when printing) -->
+        <div class="pdf-header">
+            <h1>AFTC Front Door</h1>
+            <div class="subtitle">Summary of Request (SOR)</div>
+        </div>
+
+        <!-- Screen Header (hidden when printing) -->
+        <header class="no-print">
+            <h1>🛡️ AFTC Front Door</h1>
+            <p class="subtitle">Test Request Intake Demo - Tier 1 Validation</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Input Panel -->
+            <div class="panel input-panel">
+                <h2>📝 Request Input</h2>
+
+                <div class="form-group">
+                    <label for="examples">Load Example Request:</label>
+                    <select id="examples">
+                        <option value="">-- Select an Example --</option>
+                        <option value="incomplete">Example 1: Incomplete Request (RED)</option>
+                        <option value="complete">Example 2: Complete Request (GREEN)</option>
+                        <option value="partial">Example 3: Partial Request (AMBER)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="requestText">Test Request:</label>
+                    <textarea id="requestText" placeholder="Enter your AFTC test request here...
+
+Example: We need flight testing for a new UAV sensor package. The system is for the 412th Test Wing and needs environmental qualification testing."></textarea>
+                </div>
+
+                <div class="controls-row">
+                    <div class="form-group">
+                        <label for="temperature">Temperature:</label>
+                        <input type="number" id="temperature" min="0" max="1" step="0.1" value="0.7">
+                    </div>
+                    <div class="form-group">
+                        <label for="maxTokens">Max Tokens:</label>
+                        <input type="number" id="maxTokens" min="100" max="4000" step="100" value="2000">
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" id="runBtn" onclick="processRequest()">
+                        ▶️ Run Intake
+                    </button>
+                    <button class="btn-secondary" onclick="clearAll()">
+                        🗑️ Clear
+                    </button>
+                </div>
+            </div>
+
+            <!-- Output Panel -->
+            <div class="panel">
+                <h2>📊 Analysis Results</h2>
+
+                <!-- Readiness Badge -->
+                <div id="readinessBadgeContainer" style="display: none;">
+                    <div id="readinessBadge" class="readiness-badge"></div>
+                </div>
+
+                <!-- Export Button -->
+                <div class="button-group" id="exportButtonContainer" style="display: none;">
+                    <button class="btn-export" id="exportBtn" onclick="exportToPDF()">
+                        📄 Export SOR to PDF
+                    </button>
+                </div>
+
+                <!-- Output Sections -->
+                <div class="output-section" id="outputSection">
+                    <div class="output-panel empty" id="clarificationsPanel">
+                        <h3>💬 Clarifications</h3>
+                        <div class="content">No analysis yet. Submit a request to begin.</div>
+                    </div>
+
+                    <div class="output-panel empty sor-panel" id="sorPanel">
+                        <h3>📋 Summary of Request (SOR)</h3>
+                        <div class="content">No SOR available.</div>
+                    </div>
+
+                    <div class="output-panel empty" id="readinessPanel">
+                        <h3>🎯 SOC Readiness Assessment</h3>
+                        <div class="content">No readiness assessment available.</div>
+                    </div>
+                </div>
+
+                <!-- Loading Indicator -->
+                <div id="loadingIndicator" style="display: none;">
+                    <div class="spinner"></div>
+                    <p style="text-align: center; color: #4fc3f7;">Processing request...</p>
+                </div>
+
+                <!-- Error Display -->
+                <div id="errorDisplay" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- PDF Footer (only visible when printing) -->
+        <div class="pdf-footer">
+            <p>Generated by AFTC Front Door Demo (Intake Only - Not Approval)</p>
+            <p>Date: <span id="pdfDate"></span></p>
+        </div>
+
+        <footer class="no-print">
+            <p>&copy; 2024 AFTC Front Door Demo | Powered by Claude API</p>
+            <p style="font-size: 0.8em; margin-top: 10px;">This is a demonstration system for Tier 1 intake validation only.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Example requests
+        const examples = {
+            incomplete: `We need some testing done.`,
+
+            complete: `Request from: Capt Sarah Mitchell, 412th Test Wing, Edwards AFB
+POC: sarah.mitchell@us.af.mil, DSN 527-1234
+
+Test Objective: Conduct environmental qualification testing for the Advanced Tactical Sensor Pod (ATSP-2000) on F-16 aircraft.
+
+Technical Requirements:
+- Temperature range: -65°F to +160°F
+- Vibration testing per MIL-STD-810
+- EMI/EMC testing per MIL-STD-461
+- Flight test validation at altitudes up to 50,000 ft
+- Integration testing with existing avionics suite
+
+Timeline: Testing required to support IOC by Q3 2025. Prefer to start environmental testing within 90 days.
+
+Background: The ATSP-2000 is a next-generation electro-optical/infrared sensor system designed for tactical reconnaissance. The system has completed developmental testing and is ready for operational qualification.`,
+
+            partial: `We're looking to test a new communications system for our unit. The system is called SecureLink-X and it's supposed to improve tactical data links.
+
+We're from the 53rd Wing at Eglin AFB. Major Tom Anderson is the project lead (tom.anderson@us.af.mil).
+
+We need to verify that it works in contested electromagnetic environments and that it integrates properly with existing systems. Not sure about exact test procedures yet but we need results before the end of the fiscal year.`
+        };
+
+        // Load example on selection
+        document.getElementById('examples').addEventListener('change', function(e) {
+            const example = examples[e.target.value];
+            if (example) {
+                document.getElementById('requestText').value = example;
+            }
+        });
+
+        // Process intake request
+        async function processRequest() {
+            const requestText = document.getElementById('requestText').value.trim();
+
+            if (!requestText) {
+                alert('Please enter a request or select an example.');
+                return;
+            }
+
+            const temperature = parseFloat(document.getElementById('temperature').value);
+            const maxTokens = parseInt(document.getElementById('maxTokens').value);
+
+            // Show loading state
+            document.getElementById('loadingIndicator').style.display = 'block';
+            document.getElementById('outputSection').style.display = 'none';
+            document.getElementById('errorDisplay').style.display = 'none';
+            document.getElementById('readinessBadgeContainer').style.display = 'none';
+            document.getElementById('exportButtonContainer').style.display = 'none';
+            document.getElementById('runBtn').disabled = true;
+
+            try {
+                const response = await fetch('/api/intake', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        request_text: requestText,
+                        temperature: temperature,
+                        max_tokens: maxTokens
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                displayResults(data);
+
+            } catch (error) {
+                showError(`Error: ${error.message}`);
+            } finally {
+                document.getElementById('loadingIndicator').style.display = 'none';
+                document.getElementById('runBtn').disabled = false;
+            }
+        }
+
+        // Display parsed results
+        function displayResults(data) {
+            document.getElementById('outputSection').style.display = 'flex';
+
+            // Update readiness badge
+            const badge = document.getElementById('readinessBadge');
+            const badgeContainer = document.getElementById('readinessBadgeContainer');
+
+            badge.className = 'readiness-badge';
+
+            switch(data.soc_readiness) {
+                case 'GREEN':
+                    badge.classList.add('badge-green');
+                    badge.textContent = '✅ SOC Readiness: GREEN';
+                    break;
+                case 'AMBER':
+                    badge.classList.add('badge-amber');
+                    badge.textContent = '⚠️ SOC Readiness: AMBER';
+                    break;
+                case 'RED':
+                    badge.classList.add('badge-red');
+                    badge.textContent = '🔴 SOC Readiness: RED';
+                    break;
+                default:
+                    badge.classList.add('badge-unknown');
+                    badge.textContent = '❓ SOC Readiness: UNKNOWN';
+            }
+
+            badgeContainer.style.display = 'block';
+
+            // Update clarifications panel
+            const clarificationsPanel = document.getElementById('clarificationsPanel');
+            const clarificationsContent = clarificationsPanel.querySelector('.content');
+
+            if (data.clarifications_text && data.clarifications_text.trim()) {
+                clarificationsContent.textContent = data.clarifications_text;
+                clarificationsPanel.classList.remove('empty');
+            } else if (data.mode === 'clarifications_only') {
+                clarificationsContent.textContent = data.raw_text;
+                clarificationsPanel.classList.remove('empty');
+            } else {
+                clarificationsContent.textContent = 'No clarifications required.';
+                clarificationsPanel.classList.add('empty');
+            }
+
+            // Update SOR panel
+            const sorPanel = document.getElementById('sorPanel');
+            const sorContent = sorPanel.querySelector('.content');
+
+            if (data.sor_text && data.sor_text.trim()) {
+                sorContent.textContent = data.sor_text;
+                sorPanel.classList.remove('empty');
+                document.getElementById('exportButtonContainer').style.display = 'flex';
+            } else {
+                sorContent.textContent = 'No SOR available. Request needs clarification first.';
+                sorPanel.classList.add('empty');
+                document.getElementById('exportButtonContainer').style.display = 'none';
+            }
+
+            // Update readiness panel
+            const readinessPanel = document.getElementById('readinessPanel');
+            const readinessContent = readinessPanel.querySelector('.content');
+
+            if (data.readiness_text && data.readiness_text.trim()) {
+                readinessContent.textContent = data.readiness_text;
+                readinessPanel.classList.remove('empty');
+            } else {
+                readinessContent.textContent = 'No readiness assessment available.';
+                readinessPanel.classList.add('empty');
+            }
+        }
+
+        // Export SOR to PDF (using browser print)
+        function exportToPDF() {
+            // Set PDF date
+            document.getElementById('pdfDate').textContent = new Date().toLocaleString();
+
+            // Trigger print dialog
+            window.print();
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorDisplay = document.getElementById('errorDisplay');
+            errorDisplay.textContent = message;
+            errorDisplay.style.display = 'block';
+            errorDisplay.className = 'error';
+        }
+
+        // Clear all inputs and outputs
+        function clearAll() {
+            document.getElementById('requestText').value = '';
+            document.getElementById('examples').value = '';
+            document.getElementById('outputSection').style.display = 'none';
+            document.getElementById('errorDisplay').style.display = 'none';
+            document.getElementById('readinessBadgeContainer').style.display = 'none';
+            document.getElementById('exportButtonContainer').style.display = 'none';
+
+            // Reset panels to empty state
+            const panels = ['clarificationsPanel', 'sorPanel', 'readinessPanel'];
+            panels.forEach(panelId => {
+                const panel = document.getElementById(panelId);
+                const content = panel.querySelector('.content');
+                panel.classList.add('empty');
+
+                if (panelId === 'clarificationsPanel') {
+                    content.textContent = 'No analysis yet. Submit a request to begin.';
+                } else if (panelId === 'sorPanel') {
+                    content.textContent = 'No SOR available.';
+                } else {
+                    content.textContent = 'No readiness assessment available.';
+                }
+            });
+        }
+
+        // Allow Enter key to submit (Ctrl+Enter)
+        document.getElementById('requestText').addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                processRequest();
+            }
+        });
+    </script>
+</body>
+</html>
