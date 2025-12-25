@@ -1,39 +1,76 @@
-# AFTC Front Door – Test Request Intake Demo
+# AFTC Front Door – Guided Request Wizard
 
-A professional web application for Air Force Test Center (AFTC) test request intake and Tier 1 validation, powered by Anthropic's Claude AI.
+A conversational, wizard-based web application for Air Force Test Center (AFTC) test request intake and Tier 1 validation, powered by Anthropic's Claude AI.
 
 ## 🎯 Overview
 
-This demo application provides:
-- **Tier 1 Validation**: Automated initial gating of test requests
-- **Structured Output**: Clarifications, Summary of Request (SOR), and SOC Readiness assessment
-- **Visual Readiness Indicators**: RED/AMBER/GREEN badges for quick status assessment
-- **PDF Export**: Professional, leadership-ready SOR documents
-- **Dark Theme UI**: Modern, easy-to-read interface for extended use
+The AFTC Front Door provides a guided, step-by-step wizard that transforms plain-language test requests into structured Summary of Request (SOR) documents. The system uses a conversational approach with progressive disclosure, asking clarifying questions one at a time and providing continuous feedback.
 
-## ✨ Features
+### Key Features
 
-### Three-Panel Output Display
-1. **Clarifications Panel**: Lists required information for incomplete requests
-2. **Summary of Request (SOR) Panel**: Professional summary for validated requests
-3. **SOC Readiness Assessment Panel**: Detailed readiness evaluation
+- **🎭 Guided Wizard Flow**: Step-by-step process from welcome to completion
+- **💬 Conversational Clarifications**: Ask questions one at a time with context
+- **🔄 Understanding Reflection**: Show what the system understands before proceeding
+- **📊 Readiness Assessment**: Visual SOR/SOC status indicators
+- **📋 Structured SOR Output**: Clean, collapsible sections for easy review
+- **🎨 Modern Dark UI**: Professional Air Force tech aesthetic
+- **📱 Responsive Design**: Works on desktop and tablet
 
-### SOC Readiness Status Badges
-- 🟢 **GREEN**: Well-defined request ready for SOC review
-- 🟡 **AMBER**: Valid request needing refinement
-- 🔴 **RED**: Significant gaps requiring clarification
-- ⚪ **UNKNOWN**: Status could not be determined
+## ✨ User Journey
 
-### PDF Export Capability
-- One-click export of SOR content
-- Professional formatting for leadership briefings
-- Includes header, footer, and generation timestamp
-- Clean, printable layout (black text on white background)
+### Step 0: Welcome
+- Friendly introduction with reassurance bullets
+- Sets expectations: "You can be high-level. We'll guide you."
+- Single action: "Start my request"
 
-### Example Requests
-- **Example 1**: Incomplete request → Shows clarifications needed, RED status
-- **Example 2**: Complete request → Full SOR with GREEN status
-- **Example 3**: Partial request → SOR with AMBER status for refinement
+### Step 1: Initial Intake
+- Large textarea for plain-language request
+- Placeholder example for guidance
+- Optional advanced settings (temperature, max tokens) hidden by default
+- Submit with "Continue" button
+
+### Step 2: Reflection
+- Shows understanding summary in conversational language
+- Lists any assumptions being made
+- Two clear choices:
+  - "Yes, that's accurate" → proceed
+  - "Let me clarify" → edit request
+
+### Step 3: Clarifying Questions (if needed)
+- **One question at a time** (not overwhelming)
+- Each question includes:
+  - Clear question text
+  - "Why this matters" explanation
+  - Appropriate input control (text, date, select, number)
+- Navigate forward/backward through questions
+- Submit all answers together
+
+### Step 4: Readiness Snapshot
+- Visual status badges:
+  - **SOR Status**: NOT_READY or READY
+  - **SOC Status**: UNKNOWN, NOT_READY, APPROACHING, or READY
+- Bulleted assessment reasoning
+- Guidance on what's missing for SOC readiness
+- Context-aware next action button
+
+### Step 5: SOR Output
+- Professional structured summary with collapsible sections:
+  - Requestor & Organization
+  - Test Objective
+  - Technical Requirements
+  - Timeline & Constraints
+  - Additional Context
+- Copy to clipboard functionality
+- Continue to next steps
+
+### Step 6: Next Steps & Guidance
+- Cards for future actions:
+  - Notional lifecycle roadmap
+  - Geographic considerations
+  - Platform/aircraft considerations
+  - Team introduction
+- SOC improvement guidance (if applicable)
+- Start another request
 
 ## 🚀 Quick Start
 
@@ -41,7 +78,7 @@ This demo application provides:
 - Python 3.8 or higher
 - Anthropic API key
 
-### Installation
+### Local Installation
 
 1. **Clone the repository**
    ```bash
@@ -64,209 +101,323 @@ This demo application provides:
    ANTHROPIC_API_KEY=your_api_key_here
    ```
 
-### Running the Application
-
-1. **Start the server**
+5. **Start the server**
    ```bash
    python app.py
    ```
 
-   Or use uvicorn directly:
+   Or with uvicorn:
    ```bash
    uvicorn app:app --host 0.0.0.0 --port 8000 --reload
    ```
 
-2. **Open your browser**
+6. **Open your browser**
    Navigate to: `http://localhost:8000`
 
-3. **Start testing**
-   - Select an example request from the dropdown, or
-   - Enter your own test request
-   - Click "Run Intake" to process
-   - Review the three-panel output
-   - Export SOR to PDF if needed
+## ☁️ Railway Deployment
 
-## 📋 Run + Demo Checklist
+### Environment Variables
 
-Follow this checklist to demonstrate all features:
+In your Railway dashboard:
 
-### ✅ Step 1: Start Server
+1. Go to your service → **Variables** tab
+2. Add the following variable:
+   - **Key**: `ANTHROPIC_API_KEY`
+   - **Value**: Your Anthropic API key
+
+### Deployment Configuration
+
+The app is configured for Railway with:
+- **Procfile**: Specifies the start command
+- **railway.toml**: Deployment settings and health checks
+- **Health check**: `/health` endpoint
+- **Auto-scaling**: Supports Railway's scaling features
+
+### Verify Deployment
+
+Once deployed, test these endpoints:
+
 ```bash
-python app.py
+# Health check
+curl https://your-app.railway.app/health
+
+# API documentation
+https://your-app.railway.app/docs
 ```
-Expected output: Server running on `http://0.0.0.0:8000`
-
-### ✅ Step 2: Open Browser
-- Navigate to `http://localhost:8000`
-- Verify the dark-themed UI loads correctly
-- Confirm you see the input panel (left) and output panel (right)
-
-### ✅ Step 3: Run Example 1 (Incomplete Request - RED)
-1. Select "Example 1: Incomplete Request (RED)" from dropdown
-2. Click "Run Intake"
-3. **Verify**:
-   - 🔴 RED readiness badge appears
-   - Clarifications panel shows required information
-   - SOR panel shows "No SOR available"
-   - Export button is hidden (no SOR to export)
-
-### ✅ Step 4: Run Example 2 (Complete Request - GREEN)
-1. Select "Example 2: Complete Request (GREEN)" from dropdown
-2. Click "Run Intake"
-3. **Verify**:
-   - 🟢 GREEN readiness badge appears
-   - Clarifications panel shows "No clarifications required"
-   - SOR panel displays professional summary
-   - SOC Readiness Assessment panel shows detailed evaluation
-   - Export SOR to PDF button is visible
-
-### ✅ Step 5: Export SOR to PDF
-1. Click "Export SOR to PDF" button
-2. **Verify**:
-   - Browser print dialog opens
-   - Print preview shows ONLY the SOR content
-   - Header: "AFTC Front Door – Summary of Request (SOR)"
-   - Footer: Generation timestamp and disclaimer
-   - Clean white background, black text (no dark theme)
-   - Professional formatting suitable for leadership
-3. Save as PDF or cancel
-
-### ✅ Step 6: Run Example 3 (Partial Request - AMBER)
-1. Select "Example 3: Partial Request (AMBER)" from dropdown
-2. Click "Run Intake"
-3. **Verify**:
-   - 🟡 AMBER readiness badge appears
-   - SOR panel shows summary
-   - Readiness assessment explains what needs refinement
-
-### ✅ Step 7: Test Clear Function
-1. Click "Clear" button
-2. **Verify**:
-   - Input text area is cleared
-   - All output panels reset to empty state
-   - Readiness badge disappears
-   - Export button disappears
 
 ## 🏗️ Architecture
 
 ### Backend (FastAPI + Python)
-- **app.py**: Main application server
-  - `/api/intake`: POST endpoint for request processing
-  - `/health`: Health check endpoint
-  - Structured JSON response parsing
-  - Robust section extraction with fallback logic
 
-### Frontend (Single HTML File)
-- **static/index.html**: Complete single-page application
-  - Embedded CSS for dark theme and print styles
-  - Embedded JavaScript for API calls and UI updates
-  - Responsive three-panel layout
-  - Client-side PDF export using `window.print()`
+**File**: `app.py`
 
-### API Response Structure
+Key components:
+- **Wizard Response Model**: Structured JSON for UI consumption
+  - `stage`: Current workflow stage (clarify/sor_ready/complete)
+  - `reflection`: Understanding summary and assumptions
+  - `clarifying_questions`: Structured questions with context
+  - `readiness`: SOR/SOC status with reasoning
+  - `sor`: Structured sections when ready
+
+- **Enhanced System Prompt**: Guides Claude to generate conversational, structured responses
+
+- **Parsing Logic**: Robust extraction of sections from Claude's output
+
+- **API Endpoints**:
+  - `POST /api/intake`: Main wizard endpoint
+  - `GET /health`: Health check
+  - `GET /docs`: Interactive API documentation
+
+### Frontend (Single HTML)
+
+**File**: `static/index.html`
+
+Architecture:
+- **Vanilla JavaScript**: No frameworks, simple state machine
+- **Embedded CSS**: Dark theme with Air Force tech aesthetic
+- **Progressive Disclosure**: Show one primary focus per step
+- **Responsive Layout**: Mobile-friendly design
+
+State management:
+```javascript
+{
+  currentStep: 0-6,
+  wizardData: { ... },  // Latest backend response
+  questions: [...],     // Clarifying questions
+  answers: {...}        // User responses
+}
+```
+
+### API Request/Response
+
+**Request**:
 ```json
 {
-  "mode": "sor_and_readiness",
-  "soc_readiness": "GREEN",
-  "clarifications_text": "",
-  "sor_text": "Requestor: Capt Sarah Mitchell...",
-  "readiness_text": "This request is well-defined...",
-  "raw_text": "Full output from Claude..."
+  "request_text": "string",
+  "previous_answers": {
+    "q1": "answer",
+    "q2": "answer"
+  },
+  "temperature": 0.7,
+  "max_tokens": 2500
+}
+```
+
+**Response**:
+```json
+{
+  "stage": "clarify",
+  "reflection": {
+    "understanding_summary": "...",
+    "assumptions": ["..."],
+    "what_we_still_need": ["..."]
+  },
+  "clarifying_questions": [
+    {
+      "id": "q1",
+      "question": "...",
+      "why_this_matters": "...",
+      "expected_answer_type": "text"
+    }
+  ],
+  "readiness": {
+    "sor_status": "NOT_READY",
+    "soc_status": "UNKNOWN",
+    "reasoning": ["..."],
+    "missing_for_soc": ["..."]
+  },
+  "sor": null
 }
 ```
 
 ## 🔒 Security
 
 - **API Key Protection**: Keys stored in `.env` (server-side only)
-- **No Client Exposure**: Frontend never sees API credentials
-- **HTTPS Ready**: Can be deployed behind reverse proxy for production
+- **No Client Exposure**: Frontend never sees credentials
+- **HTTPS Ready**: Deploy behind reverse proxy for production
 - **Input Validation**: Server-side validation of all inputs
+- **Error Handling**: Friendly messages, no stack traces to users
 
-## 📝 API Parameters
+## 🎨 Design Principles
 
-### Temperature (0.0 - 1.0)
-Controls response randomness:
+### Conversational Tone
+- Professional but approachable (concierge, not gatekeeper)
+- Plain language, not bureaucratic jargon
+- Helpful explanations ("Why this matters")
+
+### Progressive Disclosure
+- One primary focus per step
+- No overwhelming walls of text
+- Clear next actions at each stage
+
+### Visual Hierarchy
+- Large, readable typography
+- High contrast for accessibility
+- Generous spacing
+- Subtle animations (professional, not flashy)
+
+### Color System
+- **Primary**: Blues (#64b5f6, #42a5f5) - Trust, clarity
+- **Success**: Greens - Ready status
+- **Warning**: Orange/Amber - Needs attention
+- **Error**: Red - Not ready, needs work
+- **Background**: Dark gradients - Reduce eye strain
+
+## 📝 Customization
+
+### Adjusting System Behavior
+
+**Temperature** (0.0 - 1.0):
 - **0.7** (default): Balanced creativity and consistency
-- Lower: More deterministic, suitable for formal documents
-- Higher: More creative, suitable for brainstorming
+- Lower: More deterministic, formal
+- Higher: More creative, conversational
 
-### Max Tokens (100 - 4000)
-Controls response length:
-- **2000** (default): Standard for most requests
+**Max Tokens** (500 - 4000):
+- **2500** (default): Standard for most requests
 - Increase for complex, detailed requests
-- Decrease for quick summaries
+- Decrease for quicker responses
 
-## 🎨 UI Customization
+### Modifying the System Prompt
 
-### Print CSS
-Print styles are automatically applied when exporting to PDF:
-- SOR panel only (other content hidden)
-- Professional header and footer
-- Black text on white background
-- Readable fonts and margins
+Edit `SYSTEM_PROMPT` in `app.py` to:
+- Adjust tone (formal vs conversational)
+- Change gating rules
+- Modify output format
+- Add domain-specific guidance
 
-### Screen Theme
-Dark gradient theme optimized for:
-- Reduced eye strain during extended use
-- Professional military/government aesthetic
-- High contrast for readability
+### Styling the UI
+
+All styles are in `static/index.html`:
+- Colors: Search for hex values (#64b5f6, etc.)
+- Spacing: Adjust padding/margin values
+- Typography: Change font-family, font-size
+- Animations: Modify @keyframes and transitions
 
 ## 🛠️ Troubleshooting
 
-### Server won't start
-- **Check**: Python version (3.8+)
-- **Check**: All dependencies installed (`pip install -r requirements.txt`)
-- **Check**: Port 8000 is not in use
+### Server Issues
 
-### API errors
-- **Check**: `.env` file exists with valid `ANTHROPIC_API_KEY`
-- **Check**: API key has sufficient credits
-- **Check**: Network connectivity
+**Server won't start:**
+- Check Python version (3.8+)
+- Verify all dependencies: `pip install -r requirements.txt`
+- Ensure port 8000 is available
 
-### Parsing issues
-- The parser is designed to be tolerant of variations
-- Check `raw_text` in the response for full Claude output
+**API key errors:**
+- Verify `.env` file exists with `ANTHROPIC_API_KEY`
+- Check API key is valid and has credits
+- Restart server after changing `.env`
+
+### API Issues
+
+**"We hit a snag" errors:**
+- Check network connectivity
+- Verify API key is valid
+- Check Railway logs for backend errors
+
+**Parsing errors:**
+- System is designed to be tolerant of variations
+- Check `raw_text` field in response for debugging
 - Parser looks for multiple header variations
-- Falls back to full text if sections can't be identified
 
-### PDF export issues
-- **Chrome/Edge**: Print to PDF works natively
-- **Firefox**: Select "Save to PDF" as printer
-- **Safari**: Use "Save as PDF" from print dialog
+### UI Issues
 
-## 📚 Additional Information
+**Wizard doesn't progress:**
+- Check browser console for JavaScript errors
+- Verify `/api/intake` endpoint is accessible
+- Try clearing browser cache
 
-### Tier 1 Gating Rules
-Requests must include:
-1. AFTC test capability identification
-2. Requestor organization and POC
-3. Clear test objective or question
+**Questions not showing:**
+- Check that backend returned `clarifying_questions` array
+- Verify question format matches expected schema
+- Check console for parsing errors
 
-### SOC Readiness Criteria
+## 📚 API Documentation
 
-**RED**: Significant gaps
-- Unclear scope or test objectives
-- Missing critical technical details
-- Major feasibility concerns
+### Interactive Docs
 
-**AMBER**: Needs refinement
-- Valid request with minor gaps
-- Timeline or resource details needed
-- Technical specifications need clarity
+Visit `/docs` when server is running:
+- **Local**: http://localhost:8000/docs
+- **Railway**: https://your-app.railway.app/docs
 
-**GREEN**: Ready for SOC
-- Well-defined scope and objectives
-- Sufficient technical detail
-- Minimal additional information needed
+Features:
+- Try API endpoints directly
+- See request/response schemas
+- View all available operations
 
-## 🤝 Contributing
+### Health Check
 
-This is a demonstration application. For production use:
-1. Add authentication and authorization
-2. Implement request logging and audit trails
-3. Add database storage for request history
-4. Enhance error handling and monitoring
-5. Deploy behind HTTPS with proper security headers
+```bash
+GET /health
+
+Response:
+{
+  "status": "healthy",
+  "service": "AFTC Front Door Demo"
+}
+```
+
+### Main Intake Endpoint
+
+```bash
+POST /api/intake
+Content-Type: application/json
+
+{
+  "request_text": "We need flight testing...",
+  "previous_answers": {"q1": "412th Test Wing"},
+  "temperature": 0.7,
+  "max_tokens": 2500
+}
+```
+
+## 🤝 Development
+
+### Project Structure
+
+```
+AFTC-FRONT-DOOR-DEMO/
+├── app.py                  # FastAPI backend
+├── static/
+│   └── index.html         # Wizard UI (HTML + CSS + JS)
+├── requirements.txt        # Python dependencies
+├── Procfile               # Railway start command
+├── railway.toml           # Railway configuration
+├── .env                   # Environment variables (gitignored)
+├── .env.example           # Template for .env
+├── .gitignore             # Git ignore rules
+└── README.md              # This file
+```
+
+### Making Changes
+
+**Backend changes:**
+1. Edit `app.py`
+2. Test with: `uvicorn app:app --reload`
+3. Check `/docs` for API changes
+
+**Frontend changes:**
+1. Edit `static/index.html`
+2. Refresh browser (hard refresh: Cmd/Ctrl + Shift + R)
+3. Test wizard flow end-to-end
+
+**Deploy changes:**
+```bash
+git add .
+git commit -m "Description of changes"
+git push
+```
+
+Railway auto-deploys on push.
+
+## 🎯 Future Enhancements
+
+Potential additions:
+- **Authentication**: User login and request history
+- **Database**: Persist requests and track status
+- **Email Notifications**: Auto-notify team when SOR ready
+- **PDF Export**: Generate formatted PDF of SOR
+- **Multi-language**: Support for other languages
+- **Admin Dashboard**: View all requests, analytics
 
 ## 📄 License
 
@@ -274,13 +425,14 @@ This is a demonstration project for AFTC evaluation purposes.
 
 ## 📞 Support
 
-For issues or questions about this demo:
-1. Check the troubleshooting section
-2. Review the Anthropic API documentation
-3. Contact your system administrator
+For issues or questions:
+1. Check troubleshooting section above
+2. Review `/docs` for API details
+3. Check Railway logs for deployment issues
+4. Contact your system administrator
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: 2024
-**Powered by**: Anthropic Claude API (claude-3-5-sonnet-20241022)
+**Version**: 2.0.0 (Wizard Flow)
+**Last Updated**: December 2024
+**Powered by**: Anthropic Claude 3 Haiku

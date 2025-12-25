@@ -1,12 +1,13 @@
 """
 AFTC Front Door - Test Request Intake Demo
 FastAPI backend with Claude API integration
-Supports structured output parsing and SOC readiness assessment
+Supports guided wizard flow with conversational clarifications
 """
 
 import os
 import re
-from typing import Optional
+import json
+from typing import Optional, List, Dict, Any
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -26,206 +27,329 @@ if not ANTHROPIC_API_KEY:
 
 anthropic_client = Anthropic(api_key=ANTHROPIC_API_KEY)
 
-# System prompt for AFTC intake
-SYSTEM_PROMPT = """You are an Air Force Test Center (AFTC) front-door intake assistant. Your role is to perform initial Tier 1 validation of incoming test and evaluation requests.
+# Enhanced system prompt for wizard flow
+SYSTEM_PROMPT = """You are an Air Force Test Center (AFTC) front-door intake assistant with a professional, conversational tone. Your role is to guide requestors through a structured intake process.
 
 TIER 1 GATING RULES:
 1. Request must be for AFTC test capability (flight test, ground test, modeling/simulation, data analysis)
 2. Request must identify requestor organization and POC
 3. Request must have a clear test objective or question
 
-RESPONSE MODES:
+YOUR RESPONSE FORMAT:
+Always respond with a structured analysis in the following format:
 
-MODE 1 - Clarifications Required (fails Tier 1):
-If the request does NOT meet all three gating rules, respond with:
+UNDERSTANDING:
+[2-3 sentences summarizing what you understand from their request so far]
+
+ASSUMPTIONS:
+[Bullet list of any assumptions you're making, or write "None yet" if this is the first interaction]
+
+CLARIFYING QUESTIONS:
+[If missing information, list specific questions. Format each as:
+Q1: [Question text]
+Why this matters: [Brief explanation]
+Expected answer: [text/organization/date/technical/yes-no]
+
+If no questions needed, write "None - ready to proceed"]
+
+SOR STATUS: [NOT_READY or READY]
+SOC STATUS: [UNKNOWN or NOT_READY or APPROACHING or READY]
+
+REASONING:
+[Bullet list explaining the status assessment]
+
+MISSING FOR SOC:
+[If SOC not READY, list what's needed. Otherwise write "None"]
+
 ---
-Priority Clarifications Required
+If SOR STATUS is READY, also provide:
 
-[List the specific missing information needed to proceed]
+SUMMARY OF REQUEST (SOR):
 
-Status: Tier 1 Incomplete
+Requestor & Organization:
+[Details]
+
+Test Objective:
+[Clear statement of what needs testing/evaluation]
+
+Technical Requirements:
+[Key requirements, constraints, or specifications]
+
+Timeline & Constraints:
+[Any mentioned deadlines or scheduling needs]
+
+Additional Context:
+[Any other relevant details]
+
 ---
 
-MODE 2 - Initial Validated Intake (passes Tier 1):
-If the request PASSES all three gating rules, provide:
+TONE: Professional but approachable. Think helpful concierge, not bureaucratic gatekeeper.
+Be concise - this is a guided conversation, not a formal report."""
 
-1. Summary of Request (SOR):
-[Create a concise, professional summary of the request including:
-- Requestor and organization
-- Test objective or capability needed
-- Key technical requirements or constraints
-- Timeline if mentioned]
 
-2. SOC Readiness Status: [RED/AMBER/GREEN]
+class ClarifyingQuestion(BaseModel):
+    """Model for a single clarifying question"""
+    id: str
+    question: str
+    why_this_matters: str
+    expected_answer_type: str  # "text", "select", "number", "date"
 
-SOC Readiness Assessment:
-[Provide assessment with rationale:
-- RED: Significant gaps in technical definition, scope unclear, or major feasibility concerns
-- AMBER: Request is valid but needs refinement on technical details, timeline, or resource requirements
-- GREEN: Well-defined request ready for SOC review with minimal additional information needed]
 
-Status: Initial Validated Intake
----
+class Reflection(BaseModel):
+    """Model for understanding reflection"""
+    understanding_summary: str
+    assumptions: List[str] = []
+    what_we_still_need: List[str] = []
 
-Always maintain a professional, helpful tone appropriate for military/government requestors."""
+
+class Readiness(BaseModel):
+    """Model for readiness assessment"""
+    sor_status: str  # "NOT_READY" or "READY"
+    soc_status: str  # "UNKNOWN", "NOT_READY", "APPROACHING", "READY"
+    reasoning: List[str] = []
+    missing_for_soc: List[str] = []
+
+
+class SORSection(BaseModel):
+    """Model for SOR section"""
+    title: str
+    content: str
+
+
+class SOR(BaseModel):
+    """Model for Summary of Request"""
+    sections: List[SORSection] = []
+
+
+class WizardResponse(BaseModel):
+    """Wizard-friendly response structure"""
+    stage: str  # "clarify", "sor_ready", "complete"
+    reflection: Reflection
+    clarifying_questions: List[ClarifyingQuestion] = []
+    readiness: Readiness
+    sor: Optional[SOR] = None
+    raw_text: str = ""
 
 
 class IntakeRequest(BaseModel):
     """Request model for intake endpoint"""
     request_text: str
+    previous_answers: Optional[Dict[str, str]] = None
     temperature: Optional[float] = 0.7
-    max_tokens: Optional[int] = 2000
+    max_tokens: Optional[int] = 2500
 
 
-class IntakeResponse(BaseModel):
-    """Structured response from intake processing"""
-    mode: str  # "clarifications_only" or "sor_and_readiness"
-    soc_readiness: str  # "RED", "AMBER", "GREEN", or "UNKNOWN"
-    clarifications_text: str
-    sor_text: str
-    readiness_text: str
-    raw_text: str
-
-
-def parse_claude_response(output: str) -> IntakeResponse:
+def parse_wizard_response(output: str) -> WizardResponse:
     """
-    Parse Claude's response into structured sections.
-    Implements robust, tolerant parsing for real-world variation.
+    Parse Claude's response into wizard-friendly structure.
 
     Args:
         output: Raw text output from Claude
 
     Returns:
-        IntakeResponse with parsed sections
+        WizardResponse with structured data for wizard UI
     """
     raw_text = output.strip()
 
-    # Initialize response fields
-    mode = "clarifications_only"
-    soc_readiness = "UNKNOWN"
-    clarifications_text = ""
-    sor_text = ""
-    readiness_text = ""
+    # Extract UNDERSTANDING section
+    understanding_match = re.search(
+        r'UNDERSTANDING:\s*\n+(.*?)(?=\n\s*ASSUMPTIONS:|\n\s*CLARIFYING|$)',
+        raw_text,
+        re.DOTALL | re.IGNORECASE
+    )
+    understanding_summary = understanding_match.group(1).strip() if understanding_match else "Analyzing your request..."
 
-    # Determine mode by looking for SOR indicators
-    sor_indicators = [
-        "Summary of Request",
-        "SOR:",
-        "Status: Initial Validated Intake",
-        "SOC Readiness Status:",
-        "SOC Readiness Assessment:"
-    ]
+    # Extract ASSUMPTIONS
+    assumptions = []
+    assumptions_match = re.search(
+        r'ASSUMPTIONS:\s*\n+(.*?)(?=\n\s*CLARIFYING|$)',
+        raw_text,
+        re.DOTALL | re.IGNORECASE
+    )
+    if assumptions_match:
+        assumptions_text = assumptions_match.group(1).strip()
+        if "none" not in assumptions_text.lower():
+            assumptions = [line.strip('- ').strip() for line in assumptions_text.split('\n') if line.strip() and line.strip() != '-']
 
-    has_sor = any(indicator.lower() in raw_text.lower() for indicator in sor_indicators)
-    if has_sor:
-        mode = "sor_and_readiness"
+    # Extract CLARIFYING QUESTIONS
+    clarifying_questions = []
+    questions_match = re.search(
+        r'CLARIFYING QUESTIONS:\s*\n+(.*?)(?=\n\s*SOR STATUS:|\n\s*REASONING:|$)',
+        raw_text,
+        re.DOTALL | re.IGNORECASE
+    )
 
-    # Extract SOC Readiness Status
-    readiness_patterns = [
-        r'SOC Readiness Status:\s*(RED|AMBER|GREEN)',
-        r'Readiness Status:\s*(RED|AMBER|GREEN)',
-        r'Status:\s*(RED|AMBER|GREEN)',
-        r'\b(RED|AMBER|GREEN)\b(?=\s*SOC|\s*Readiness)',
-    ]
+    if questions_match:
+        questions_text = questions_match.group(1).strip()
+        if "none" not in questions_text.lower():
+            # Parse individual questions
+            question_blocks = re.split(r'\nQ\d+:', questions_text)
+            for idx, block in enumerate(question_blocks[1:], 1):  # Skip first empty split
+                q_lines = block.strip().split('\n')
+                question_text = q_lines[0].strip()
 
-    for pattern in readiness_patterns:
-        match = re.search(pattern, raw_text, re.IGNORECASE)
-        if match:
-            soc_readiness = match.group(1).upper()
-            break
+                why_matters = ""
+                expected_type = "text"
 
-    # If no explicit status found, look for standalone RED/AMBER/GREEN near readiness section
-    if soc_readiness == "UNKNOWN":
-        lines = raw_text.split('\n')
-        for i, line in enumerate(lines):
-            if 'readiness' in line.lower():
-                # Check next few lines for status
-                for j in range(i, min(i+5, len(lines))):
-                    if re.search(r'\b(RED|AMBER|GREEN)\b', lines[j], re.IGNORECASE):
-                        match = re.search(r'\b(RED|AMBER|GREEN)\b', lines[j], re.IGNORECASE)
-                        soc_readiness = match.group(1).upper()
-                        break
-                break
+                for line in q_lines[1:]:
+                    if 'why this matters:' in line.lower():
+                        why_matters = line.split(':', 1)[1].strip()
+                    elif 'expected answer:' in line.lower():
+                        answer_type = line.split(':', 1)[1].strip().lower()
+                        if 'org' in answer_type:
+                            expected_type = "text"
+                        elif 'date' in answer_type or 'timeline' in answer_type:
+                            expected_type = "date"
+                        elif 'yes' in answer_type or 'no' in answer_type:
+                            expected_type = "select"
+                        elif 'number' in answer_type or 'numeric' in answer_type:
+                            expected_type = "number"
+                        else:
+                            expected_type = "text"
 
-    # Parse sections based on mode
-    if mode == "clarifications_only":
-        # Extract clarification content
-        clarification_patterns = [
-            r'Priority Clarifications Required\s*\n+(.*?)(?=\n\s*Status:|$)',
-            r'Clarification Request\s*\n+(.*?)(?=\n\s*Status:|$)',
-            r'Clarifications Required\s*\n+(.*?)(?=\n\s*Status:|$)',
-        ]
+                clarifying_questions.append(ClarifyingQuestion(
+                    id=f"q{idx}",
+                    question=question_text,
+                    why_this_matters=why_matters or "Helps us understand your requirements better",
+                    expected_answer_type=expected_type
+                ))
 
-        for pattern in clarification_patterns:
-            match = re.search(pattern, raw_text, re.DOTALL | re.IGNORECASE)
-            if match:
-                clarifications_text = match.group(1).strip()
-                break
+    # Extract SOR and SOC STATUS
+    sor_status_match = re.search(r'SOR STATUS:\s*(NOT_READY|READY)', raw_text, re.IGNORECASE)
+    sor_status = sor_status_match.group(1).upper() if sor_status_match else "NOT_READY"
 
-        # If no specific section found, use full text (minus headers)
-        if not clarifications_text:
-            clarifications_text = raw_text
+    soc_status_match = re.search(r'SOC STATUS:\s*(UNKNOWN|NOT_READY|APPROACHING|READY)', raw_text, re.IGNORECASE)
+    soc_status = soc_status_match.group(1).upper() if soc_status_match else "UNKNOWN"
 
-    else:  # mode == "sor_and_readiness"
-        # Extract SOR section
-        sor_patterns = [
-            r'(?:Summary of Request|SOR:?)\s*\n+(.*?)(?=\n\s*(?:\d+\.?\s*)?SOC Readiness|$)',
-            r'(?:Summary of Request|SOR)[\s:]*\n+(.*?)(?=SOC Readiness|Status:|$)',
-        ]
+    # Extract REASONING
+    reasoning = []
+    reasoning_match = re.search(
+        r'REASONING:\s*\n+(.*?)(?=\n\s*MISSING FOR SOC:|\n\s*SUMMARY OF REQUEST|$)',
+        raw_text,
+        re.DOTALL | re.IGNORECASE
+    )
+    if reasoning_match:
+        reasoning_text = reasoning_match.group(1).strip()
+        reasoning = [line.strip('- ').strip() for line in reasoning_text.split('\n') if line.strip() and line.strip() != '-']
 
-        for pattern in sor_patterns:
-            match = re.search(pattern, raw_text, re.DOTALL | re.IGNORECASE)
-            if match:
-                sor_text = match.group(1).strip()
-                break
+    # Extract MISSING FOR SOC
+    missing_for_soc = []
+    missing_match = re.search(
+        r'MISSING FOR SOC:\s*\n+(.*?)(?=\n\s*SUMMARY OF REQUEST|$)',
+        raw_text,
+        re.DOTALL | re.IGNORECASE
+    )
+    if missing_match:
+        missing_text = missing_match.group(1).strip()
+        if "none" not in missing_text.lower():
+            missing_for_soc = [line.strip('- ').strip() for line in missing_text.split('\n') if line.strip() and line.strip() != '-']
 
-        # Extract SOC Readiness section
-        readiness_patterns_section = [
-            r'(?:SOC Readiness Status|SOC Readiness Assessment)[\s:]*\n+(.*?)(?=\n\s*Status:|$)',
-            r'SOC Readiness[\s:]*[A-Z]+\s*\n+(.*?)(?=\n\s*Status:|$)',
-        ]
+    # Determine stage
+    if clarifying_questions:
+        stage = "clarify"
+    elif sor_status == "READY":
+        stage = "sor_ready"
+    else:
+        stage = "clarify"
 
-        for pattern in readiness_patterns_section:
-            match = re.search(pattern, raw_text, re.DOTALL | re.IGNORECASE)
-            if match:
-                readiness_text = match.group(1).strip()
-                break
+    # Build reflection
+    what_we_still_need = [q.question for q in clarifying_questions] if clarifying_questions else []
+    reflection = Reflection(
+        understanding_summary=understanding_summary,
+        assumptions=assumptions,
+        what_we_still_need=what_we_still_need
+    )
 
-        # Fallback: if sections not clearly delineated, try splitting by common headers
-        if not sor_text and not readiness_text:
-            # Look for numbered sections or clear breaks
-            parts = re.split(r'\n\s*\d+\.\s+', raw_text)
-            if len(parts) >= 2:
-                sor_text = parts[1].strip() if len(parts) > 1 else ""
-                readiness_text = parts[2].strip() if len(parts) > 2 else ""
+    # Build readiness
+    readiness = Readiness(
+        sor_status=sor_status,
+        soc_status=soc_status,
+        reasoning=reasoning,
+        missing_for_soc=missing_for_soc
+    )
 
-    return IntakeResponse(
-        mode=mode,
-        soc_readiness=soc_readiness,
-        clarifications_text=clarifications_text,
-        sor_text=sor_text,
-        readiness_text=readiness_text,
+    # Extract SOR if ready
+    sor = None
+    if sor_status == "READY":
+        sor_sections = []
+
+        # Try to extract SOR sections
+        sor_match = re.search(
+            r'SUMMARY OF REQUEST \(SOR\):\s*\n+(.*?)$',
+            raw_text,
+            re.DOTALL | re.IGNORECASE
+        )
+
+        if sor_match:
+            sor_text = sor_match.group(1).strip()
+
+            # Parse sections (looking for headers followed by content)
+            current_title = None
+            current_content = []
+
+            for line in sor_text.split('\n'):
+                # Check if line is a section header (ends with :)
+                if line.strip().endswith(':') and len(line.strip()) < 60:
+                    # Save previous section
+                    if current_title:
+                        sor_sections.append(SORSection(
+                            title=current_title,
+                            content='\n'.join(current_content).strip()
+                        ))
+                    # Start new section
+                    current_title = line.strip().rstrip(':')
+                    current_content = []
+                else:
+                    if line.strip():
+                        current_content.append(line)
+
+            # Save last section
+            if current_title and current_content:
+                sor_sections.append(SORSection(
+                    title=current_title,
+                    content='\n'.join(current_content).strip()
+                ))
+
+        if sor_sections:
+            sor = SOR(sections=sor_sections)
+
+    return WizardResponse(
+        stage=stage,
+        reflection=reflection,
+        clarifying_questions=clarifying_questions,
+        readiness=readiness,
+        sor=sor,
         raw_text=raw_text
     )
 
 
-@app.post("/api/intake", response_model=IntakeResponse)
+@app.post("/api/intake")
 async def process_intake(request: IntakeRequest):
     """
-    Process an AFTC test request intake.
+    Process an AFTC test request intake with wizard flow support.
 
-    Calls Claude API with AFTC system prompt and parses the response
-    into structured sections for display and PDF export.
+    Returns structured data for wizard UI including:
+    - Reflection on understanding
+    - Clarifying questions (if needed)
+    - Readiness assessment
+    - SOR (if ready)
 
     Args:
-        request: IntakeRequest with request_text and optional parameters
+        request: IntakeRequest with request_text and optional previous_answers
 
     Returns:
-        IntakeResponse with parsed sections and metadata
+        WizardResponse with structured wizard data
     """
     try:
+        # Build the full context including previous answers
+        full_context = request.request_text
+
+        if request.previous_answers:
+            full_context += "\n\nADDITIONAL INTAKE ANSWERS:\n"
+            for q_id, answer in request.previous_answers.items():
+                full_context += f"- {q_id}: {answer}\n"
+
         # Call Anthropic Messages API
-        # Using Claude 3 Haiku (fastest, most compatible model)
         message = anthropic_client.messages.create(
             model="claude-3-haiku-20240307",
             max_tokens=request.max_tokens,
@@ -234,7 +358,7 @@ async def process_intake(request: IntakeRequest):
             messages=[
                 {
                     "role": "user",
-                    "content": request.request_text
+                    "content": full_context
                 }
             ]
         )
@@ -245,10 +369,10 @@ async def process_intake(request: IntakeRequest):
             if block.type == "text":
                 output_text += block.text
 
-        # Parse the response into structured format
-        parsed_response = parse_claude_response(output_text)
+        # Parse the response into wizard structure
+        wizard_response = parse_wizard_response(output_text)
 
-        return parsed_response
+        return wizard_response
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing request: {str(e)}")
