@@ -140,6 +140,80 @@
             background: radial-gradient(ellipse at top, #1a0d2e 0%, #0d0d1f 50%, #000000 100%);
         }
 
+        /* Large Background Text */
+        .hero-background-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 10rem;
+            font-weight: 900;
+            color: rgba(100, 181, 246, 0.03);
+            white-space: nowrap;
+            letter-spacing: 0.1em;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* Base Logos */
+        .base-logos {
+            position: absolute;
+            bottom: var(--space-2xl);
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: var(--space-xl);
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        .base-logo {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(100, 181, 246, 0.2);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-sm);
+            backdrop-filter: blur(10px);
+        }
+
+        .base-logo-name {
+            font-size: var(--text-xs);
+            font-weight: 600;
+            color: rgba(100, 181, 246, 0.8);
+            text-align: center;
+            margin-top: var(--space-xs);
+        }
+
+        @media (max-width: 1024px) {
+            .hero-background-text {
+                font-size: 6rem;
+            }
+
+            .base-logos {
+                gap: var(--space-md);
+            }
+
+            .base-logo {
+                width: 60px;
+                height: 60px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-background-text {
+                font-size: 3rem;
+            }
+
+            .base-logos {
+                display: none;
+            }
+        }
+
         .animated-grid {
             position: absolute;
             top: 0;
@@ -1123,6 +1197,34 @@
             <div class="hero-container">
                 <!-- Animated Background -->
                 <div class="hero-background">
+                    <!-- Large Background Text -->
+                    <div class="hero-background-text">AIR FORCE TEST CENTER</div>
+
+                    <!-- Base Logos -->
+                    <div class="base-logos">
+                        <div class="base-logo">
+                            <svg width="50" height="50" viewBox="0 0 50 50">
+                                <circle cx="25" cy="25" r="20" fill="rgba(100, 181, 246, 0.3)" stroke="rgba(100, 181, 246, 0.6)" stroke-width="2"/>
+                                <text x="25" y="30" text-anchor="middle" fill="rgba(100, 181, 246, 0.9)" font-size="10" font-weight="bold">EGLIN</text>
+                            </svg>
+                            <div class="base-logo-name">Eglin AFB</div>
+                        </div>
+                        <div class="base-logo">
+                            <svg width="50" height="50" viewBox="0 0 50 50">
+                                <circle cx="25" cy="25" r="20" fill="rgba(100, 181, 246, 0.3)" stroke="rgba(100, 181, 246, 0.6)" stroke-width="2"/>
+                                <text x="25" y="30" text-anchor="middle" fill="rgba(100, 181, 246, 0.9)" font-size="9" font-weight="bold">EDWARDS</text>
+                            </svg>
+                            <div class="base-logo-name">Edwards AFB</div>
+                        </div>
+                        <div class="base-logo">
+                            <svg width="50" height="50" viewBox="0 0 50 50">
+                                <circle cx="25" cy="25" r="20" fill="rgba(100, 181, 246, 0.3)" stroke="rgba(100, 181, 246, 0.6)" stroke-width="2"/>
+                                <text x="25" y="30" text-anchor="middle" fill="rgba(100, 181, 246, 0.9)" font-size="10" font-weight="bold">AEDC</text>
+                            </svg>
+                            <div class="base-logo-name">Arnold EDC</div>
+                        </div>
+                    </div>
+
                     <!-- Animated Grid -->
                     <svg class="animated-grid" xmlns="http://www.w3.org/2000/svg">
                         <defs>
