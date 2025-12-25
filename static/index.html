@@ -73,7 +73,7 @@
 
         .wizard-container {
             width: 100%;
-            max-width: 800px;
+            max-width: 1400px;
             background: var(--bg-card);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
@@ -120,14 +120,13 @@
 
         .hero-container {
             position: relative;
-            width: 100vw;
-            height: 100vh;
-            margin-left: calc(-50vw + 50%);
-            margin-right: calc(-50vw + 50%);
+            width: 100%;
+            min-height: 600px;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: var(--space-3xl) var(--space-xl);
         }
 
         /* Animated Background Layers */
@@ -209,12 +208,12 @@
         .hero-content {
             position: relative;
             z-index: 10;
+            width: 100%;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 60px 40px;
             display: grid;
             grid-template-columns: 1.2fr 1fr;
-            gap: 60px;
+            gap: var(--space-3xl);
             align-items: center;
         }
 
