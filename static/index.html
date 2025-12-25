@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AFTC Front Door - Guided Request Wizard</title>
+    <title>AFTC Front Door - AI-Powered Test Request Intake</title>
     <style>
         * {
             margin: 0;
@@ -47,6 +47,364 @@
             transition: width 0.4s ease;
             width: 0%;
         }
+
+        /* ═══════════════════════════════════════════════════════════
+           HERO SECTION STYLES
+           ═══════════════════════════════════════════════════════════ */
+
+        .hero-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            margin-left: calc(-50vw + 50%);
+            margin-right: calc(-50vw + 50%);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Animated Background Layers */
+        .hero-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: radial-gradient(ellipse at top, #1a0d2e 0%, #0d0d1f 50%, #000000 100%);
+        }
+
+        .animated-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+            transform: perspective(1000px) rotateX(60deg);
+            transform-origin: 50% 100%;
+            animation: gridPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes gridPulse {
+            0%, 100% { opacity: 0.05; }
+            50% { opacity: 0.15; }
+        }
+
+        /* F-35 Blueprint */
+        .f35-blueprint {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60vw;
+            max-width: 900px;
+            opacity: 0.3;
+            animation: blueprintFloat 20s ease-in-out infinite;
+            will-change: transform;
+        }
+
+        @keyframes blueprintFloat {
+            0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+            50% { transform: translate(-50%, -50%) rotate(5deg); }
+        }
+
+        .blueprint-glow {
+            filter: drop-shadow(0 0 20px rgba(100, 181, 246, 0.3));
+        }
+
+        /* Particle Effects */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(100, 181, 246, 0.4);
+            border-radius: 50%;
+            animation: particleFloat 8s ease-in-out infinite;
+        }
+
+        @keyframes particleFloat {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(20px); opacity: 0; }
+        }
+
+        /* Hero Content */
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 40px;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .hero-text {
+            color: white;
+        }
+
+        .hero-eyebrow {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: rgba(100, 181, 246, 0.8);
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 700;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #ffffff 0%, #64b5f6 50%, #667eea 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 40px rgba(100, 181, 246, 0.3);
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.75);
+            max-width: 600px;
+            margin-bottom: 40px;
+        }
+
+        .hero-ctas {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .cta-primary {
+            padding: 16px 40px;
+            font-size: 1.125rem;
+            font-weight: 600;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow:
+                0 4px 20px rgba(102, 126, 234, 0.4),
+                0 0 40px rgba(102, 126, 234, 0.2);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cta-primary:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow:
+                0 8px 30px rgba(102, 126, 234, 0.6),
+                0 0 60px rgba(102, 126, 234, 0.3);
+        }
+
+        .cta-secondary {
+            padding: 16px 40px;
+            font-size: 1.125rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .cta-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(100, 181, 246, 0.5);
+        }
+
+        /* Floating Demo Mockup */
+        .demo-mockup {
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .demo-card {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                0 0 80px rgba(102, 126, 234, 0.2);
+            transform: perspective(1000px) rotateY(-15deg) rotateX(5deg);
+            animation: demoFloat 6s ease-in-out infinite;
+            will-change: transform;
+        }
+
+        @keyframes demoFloat {
+            0%, 100% { transform: perspective(1000px) rotateY(-15deg) rotateX(5deg) translateY(-10px); }
+            50% { transform: perspective(1000px) rotateY(-15deg) rotateX(5deg) translateY(10px); }
+        }
+
+        .demo-header {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 12px;
+        }
+
+        .demo-progress {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .demo-progress-fill {
+            height: 100%;
+            width: 40%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            animation: progressPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes progressPulse {
+            0%, 100% { width: 40%; }
+            50% { width: 60%; }
+        }
+
+        .demo-content-block {
+            background: rgba(255, 255, 255, 0.05);
+            height: 16px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            animation: contentPulse 3s ease-in-out infinite;
+        }
+
+        .demo-content-block:nth-child(2) { width: 90%; animation-delay: 0.2s; }
+        .demo-content-block:nth-child(3) { width: 70%; animation-delay: 0.4s; }
+        .demo-content-block:nth-child(4) { width: 85%; animation-delay: 0.6s; }
+
+        @keyframes contentPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        .demo-badges {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .demo-badge {
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            animation: badgeGlow 2s ease-in-out infinite;
+        }
+
+        .demo-badge-green {
+            background: linear-gradient(135deg, #66bb6a 0%, #43a047 100%);
+            color: white;
+        }
+
+        .demo-badge-blue {
+            background: linear-gradient(135deg, #64b5f6 0%, #42a5f5 100%);
+            color: white;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes badgeGlow {
+            0%, 100% { box-shadow: 0 0 10px rgba(100, 181, 246, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(100, 181, 246, 0.6); }
+        }
+
+        /* Responsive Hero */
+        @media (max-width: 1024px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+                padding: 40px 30px;
+            }
+
+            .hero-title {
+                font-size: 3rem;
+            }
+
+            .demo-card {
+                max-width: 350px;
+                margin: 0 auto;
+            }
+
+            .f35-blueprint {
+                opacity: 0.2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+
+            .hero-ctas {
+                flex-direction: column;
+            }
+
+            .cta-primary, .cta-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .demo-mockup {
+                display: none;
+            }
+
+            .f35-blueprint {
+                opacity: 0.15;
+                width: 80vw;
+            }
+        }
+
+        /* Accessibility - Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            .f35-blueprint,
+            .demo-card,
+            .particle,
+            .animated-grid,
+            .demo-progress-fill,
+            .demo-content-block,
+            .demo-badge {
+                animation: none !important;
+            }
+
+            .f35-blueprint {
+                opacity: 0.2;
+            }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           STANDARD WIZARD STYLES (Steps 1-6)
+           ═══════════════════════════════════════════════════════════ */
 
         /* Step content */
         .step {
@@ -103,7 +461,7 @@
         }
 
         /* Form elements */
-        textarea, input[type="text"], input[type="date"], select {
+        textarea, input[type="text"], input[type="date"], input[type="number"], select {
             width: 100%;
             padding: 16px;
             background: rgba(0, 0, 0, 0.3);
@@ -426,19 +784,157 @@
             <div class="progress-fill" id="progressBar"></div>
         </div>
 
-        <!-- Step 0: Welcome -->
+        <!-- ═══════════════════════════════════════════════════════════
+             STEP 0: HERO SECTION
+             ═══════════════════════════════════════════════════════════ -->
         <div class="step active" id="step0">
-            <h1 class="step-title">AFTC Front Door</h1>
-            <p class="step-subtitle">Turn plain language into a clear, actionable test request.</p>
+            <div class="hero-container">
+                <!-- Animated Background -->
+                <div class="hero-background">
+                    <!-- Animated Grid -->
+                    <svg class="animated-grid" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(100, 181, 246, 0.1)" stroke-width="0.5"/>
+                            </pattern>
+                        </defs>
+                        <rect width="100%" height="100%" fill="url(#grid)" />
+                    </svg>
 
-            <ul class="bullet-list">
-                <li>You can be high-level. We'll guide you.</li>
-                <li>We'll ask clarifying questions as needed.</li>
-                <li>Nothing is submitted until you confirm.</li>
-            </ul>
+                    <!-- F-35 Blueprint Schematic -->
+                    <svg class="f35-blueprint blueprint-glow" viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Fuselage -->
+                        <path d="M 150,150 L 600,150 L 650,140 L 650,160 L 600,150"
+                              stroke="rgba(100, 181, 246, 0.3)"
+                              stroke-width="2"
+                              fill="none"/>
 
-            <div class="button-group">
-                <button class="btn-primary" onclick="goToStep(1)">Start my request</button>
+                        <!-- Cockpit -->
+                        <circle cx="180" cy="150" r="20"
+                                stroke="rgba(100, 181, 246, 0.4)"
+                                stroke-width="2"
+                                fill="none"/>
+                        <line x1="170" y1="150" x2="190" y2="150"
+                              stroke="rgba(100, 181, 246, 0.3)"
+                              stroke-width="1"/>
+                        <line x1="180" y1="140" x2="180" y2="160"
+                              stroke="rgba(100, 181, 246, 0.3)"
+                              stroke-width="1"/>
+
+                        <!-- Wings (swept delta) -->
+                        <path d="M 300,150 L 250,220 L 300,225 Z"
+                              stroke="rgba(100, 181, 246, 0.3)"
+                              stroke-width="2"
+                              fill="none"/>
+                        <path d="M 300,150 L 250,80 L 300,75 Z"
+                              stroke="rgba(100, 181, 246, 0.3)"
+                              stroke-width="2"
+                              fill="none"/>
+
+                        <!-- Tail -->
+                        <path d="M 600,150 L 620,100 L 625,100 L 605,150"
+                              stroke="rgba(100, 181, 246, 0.3)"
+                              stroke-width="2"
+                              fill="none"/>
+                        <path d="M 600,150 L 620,200 L 625,200 L 605,150"
+                              stroke="rgba(100, 181, 246, 0.3)"
+                              stroke-width="2"
+                              fill="none"/>
+
+                        <!-- Weapon Bays (dotted outline) -->
+                        <rect x="350" y="145" width="120" height="10"
+                              stroke="rgba(100, 181, 246, 0.2)"
+                              stroke-width="1"
+                              stroke-dasharray="3,3"
+                              fill="none"/>
+
+                        <!-- Engine -->
+                        <rect x="580" y="140" width="40" height="20"
+                              stroke="rgba(100, 181, 246, 0.4)"
+                              stroke-width="2"
+                              fill="none"/>
+
+                        <!-- Dimension Labels -->
+                        <text x="180" y="130"
+                              fill="rgba(100, 181, 246, 0.3)"
+                              font-size="10"
+                              text-anchor="middle">AVIONICS</text>
+                        <text x="410" y="165"
+                              fill="rgba(100, 181, 246, 0.3)"
+                              font-size="10"
+                              text-anchor="middle">PAYLOAD BAY</text>
+                        <text x="600" y="180"
+                              fill="rgba(100, 181, 246, 0.3)"
+                              font-size="10"
+                              text-anchor="middle">PROPULSION</text>
+
+                        <!-- Connection Lines -->
+                        <line x1="200" y1="150" x2="350" y2="150"
+                              stroke="url(#lineGradient)"
+                              stroke-width="1"
+                              stroke-dasharray="4,4">
+                            <animate attributeName="stroke-dashoffset"
+                                     from="0" to="8"
+                                     dur="1s"
+                                     repeatCount="indefinite"/>
+                        </line>
+
+                        <defs>
+                            <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:rgba(100, 181, 246, 0.4);stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:rgba(102, 126, 234, 0.4);stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+
+                    <!-- Particles -->
+                    <div class="particles">
+                        <div class="particle" style="left: 20%; animation-delay: 0s;"></div>
+                        <div class="particle" style="left: 40%; animation-delay: 2s;"></div>
+                        <div class="particle" style="left: 60%; animation-delay: 4s;"></div>
+                        <div class="particle" style="left: 80%; animation-delay: 6s;"></div>
+                        <div class="particle" style="left: 30%; animation-delay: 1s;"></div>
+                        <div class="particle" style="left: 70%; animation-delay: 5s;"></div>
+                    </div>
+                </div>
+
+                <!-- Hero Content -->
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <div class="hero-eyebrow">AFTC DIGITAL FRONT DOOR</div>
+                        <h1 class="hero-title">Transform Test Requests into Mission-Ready Concepts</h1>
+                        <p class="hero-subtitle">
+                            AI-powered intake transforms unstructured ideas into decision-ready
+                            summaries—replacing weeks of manual coordination with instant
+                            capability matching.
+                        </p>
+                        <div class="hero-ctas">
+                            <button class="cta-primary" onclick="goToStep(1)">
+                                Start Request Demo
+                                <span>→</span>
+                            </button>
+                            <button class="cta-secondary">View Capabilities</button>
+                        </div>
+                    </div>
+
+                    <!-- Floating Demo Mockup -->
+                    <div class="demo-mockup">
+                        <div class="demo-card">
+                            <div class="demo-header">Step 2 of 7: Review Request</div>
+                            <div class="demo-progress">
+                                <div class="demo-progress-fill"></div>
+                            </div>
+                            <div class="demo-content-block"></div>
+                            <div class="demo-content-block"></div>
+                            <div class="demo-content-block"></div>
+                            <div class="demo-content-block"></div>
+                            <div class="demo-badges">
+                                <span class="demo-badge demo-badge-green">SOR: READY</span>
+                                <span class="demo-badge demo-badge-blue">SOC: APPROACHING</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
