@@ -5,6 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AFTC Front Door - AI-Powered Test Request Intake</title>
     <style>
+        /* ═══════════════════════════════════════════════════════════
+           GLOBAL DESIGN SYSTEM
+           ═══════════════════════════════════════════════════════════ */
+
+        :root {
+            /* Color Palette */
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --bg-base: radial-gradient(ellipse at top, #1a0d2e 0%, #0d0d1f 50%, #000814 100%);
+            --bg-card: rgba(255, 255, 255, 0.05);
+
+            --accent-blue: #64b5f6;
+            --accent-purple: #667eea;
+            --accent-teal: #4dd0e1;
+
+            --status-ready: linear-gradient(135deg, #66bb6a 0%, #4caf50 100%);
+            --status-not-ready: linear-gradient(135deg, #ffa726 0%, #ff9800 100%);
+            --status-approaching: linear-gradient(135deg, #64b5f6 0%, #42a5f5 100%);
+            --status-unknown: linear-gradient(135deg, #78909c 0%, #607d8b 100%);
+
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.85);
+            --text-tertiary: rgba(255, 255, 255, 0.6);
+            --text-gradient: linear-gradient(135deg, #ffffff 0%, #64b5f6 50%, #667eea 100%);
+
+            /* Spacing System */
+            --space-xs: 8px;
+            --space-sm: 16px;
+            --space-md: 24px;
+            --space-lg: 32px;
+            --space-xl: 48px;
+            --space-2xl: 64px;
+            --space-3xl: 96px;
+
+            /* Typography Scale */
+            --text-xs: 0.75rem;
+            --text-sm: 0.875rem;
+            --text-base: 1rem;
+            --text-lg: 1.125rem;
+            --text-xl: 1.25rem;
+            --text-2xl: 1.5rem;
+            --text-3xl: 2rem;
+            --text-4xl: 2.5rem;
+            --text-5xl: 3rem;
+            --text-6xl: 3.5rem;
+            --text-7xl: 4rem;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,40 +59,59 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #0a1929 0%, #1a2332 50%, #0d1b2a 100%);
-            color: #e3f2fd;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: var(--bg-base);
+            color: var(--text-secondary);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
             line-height: 1.6;
+            font-size: var(--text-base);
         }
 
         .wizard-container {
             width: 100%;
             max-width: 800px;
-            background: rgba(255, 255, 255, 0.03);
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
-            border: 1px solid rgba(100, 181, 246, 0.1);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.05) inset;
             overflow: hidden;
         }
 
         /* Progress indicator */
         .progress-bar {
             height: 4px;
-            background: rgba(100, 181, 246, 0.1);
+            background: rgba(255, 255, 255, 0.1);
             position: relative;
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #64b5f6 0%, #42a5f5 100%);
-            transition: width 0.4s ease;
+            background: linear-gradient(
+                90deg,
+                var(--accent-blue) 0%,
+                var(--accent-purple) 25%,
+                var(--accent-blue) 50%,
+                var(--accent-purple) 75%,
+                var(--accent-blue) 100%
+            );
+            background-size: 200% 100%;
+            animation: shimmer 2s linear infinite;
+            transition: width 400ms ease-out;
             width: 0%;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.6);
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
         }
 
         /* ═══════════════════════════════════════════════════════════
@@ -157,21 +223,21 @@
         }
 
         .hero-eyebrow {
-            font-size: 0.875rem;
+            font-size: var(--text-sm);
             text-transform: uppercase;
             letter-spacing: 0.1em;
             color: rgba(100, 181, 246, 0.8);
             font-weight: 600;
-            margin-bottom: 20px;
+            margin-bottom: var(--space-md);
         }
 
         .hero-title {
-            font-size: 4rem;
+            font-size: var(--text-7xl);
             font-weight: 700;
             line-height: 1.1;
             letter-spacing: -0.02em;
-            margin-bottom: 24px;
-            background: linear-gradient(135deg, #ffffff 0%, #64b5f6 50%, #667eea 100%);
+            margin-bottom: var(--space-lg);
+            background: var(--text-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -179,11 +245,11 @@
         }
 
         .hero-subtitle {
-            font-size: 1.25rem;
+            font-size: var(--text-xl);
             line-height: 1.6;
-            color: rgba(255, 255, 255, 0.75);
+            color: var(--text-secondary);
             max-width: 600px;
-            margin-bottom: 40px;
+            margin-bottom: var(--space-2xl);
         }
 
         .hero-ctas {
@@ -194,40 +260,44 @@
 
         .cta-primary {
             padding: 16px 40px;
-            font-size: 1.125rem;
+            font-size: var(--text-lg);
             font-weight: 600;
             border-radius: 12px;
             border: none;
             cursor: pointer;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: var(--gradient-primary);
+            color: #ffffff;
             box-shadow:
                 0 4px 20px rgba(102, 126, 234, 0.4),
                 0 0 40px rgba(102, 126, 234, 0.2);
-            transition: all 0.3s ease;
+            transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: var(--space-xs);
         }
 
         .cta-primary:hover {
             transform: translateY(-2px) scale(1.02);
             box-shadow:
-                0 8px 30px rgba(102, 126, 234, 0.6),
+                0 6px 28px rgba(102, 126, 234, 0.5),
                 0 0 60px rgba(102, 126, 234, 0.3);
+        }
+
+        .cta-primary:active {
+            transform: translateY(0) scale(0.98);
         }
 
         .cta-secondary {
             padding: 16px 40px;
-            font-size: 1.125rem;
+            font-size: var(--text-lg);
             font-weight: 600;
             border-radius: 12px;
             cursor: pointer;
             background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
+            transition: all 200ms ease;
         }
 
         .cta-secondary:hover {
@@ -339,12 +409,12 @@
         @media (max-width: 1024px) {
             .hero-content {
                 grid-template-columns: 1fr;
-                gap: 40px;
-                padding: 40px 30px;
+                gap: var(--space-xl);
+                padding: var(--space-xl) var(--space-lg);
             }
 
             .hero-title {
-                font-size: 3rem;
+                font-size: var(--text-5xl);
             }
 
             .demo-card {
@@ -359,11 +429,11 @@
 
         @media (max-width: 768px) {
             .hero-title {
-                font-size: 2.5rem;
+                font-size: var(--text-4xl);
             }
 
             .hero-subtitle {
-                font-size: 1.1rem;
+                font-size: var(--text-lg);
             }
 
             .hero-ctas {
@@ -409,34 +479,47 @@
         /* Step content */
         .step {
             display: none;
-            padding: 60px 50px;
-            animation: fadeIn 0.5s ease;
+            padding: var(--space-2xl) var(--space-xl);
+            animation: stepIn 300ms ease-in;
         }
 
         .step.active {
             display: block;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .step.exiting {
+            animation: stepOut 200ms ease-out;
+        }
+
+        @keyframes stepOut {
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+
+        @keyframes stepIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .step-title {
-            font-size: 2.2em;
-            font-weight: 700;
-            margin-bottom: 16px;
-            background: linear-gradient(135deg, #64b5f6 0%, #90caf9 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-size: var(--text-4xl);
+            font-weight: 600;
+            margin-bottom: var(--space-md);
+            color: var(--text-primary);
         }
 
         .step-subtitle {
-            font-size: 1.2em;
-            color: #90caf9;
-            margin-bottom: 32px;
-            opacity: 0.9;
+            font-size: var(--text-lg);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-xl);
         }
 
         /* Bullet lists */
@@ -463,36 +546,44 @@
         /* Form elements */
         textarea, input[type="text"], input[type="date"], input[type="number"], select {
             width: 100%;
-            padding: 16px;
+            padding: 16px 24px;
             background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(100, 181, 246, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 8px;
-            color: #e3f2fd;
-            font-size: 1em;
+            color: var(--text-primary);
+            font-size: var(--text-base);
             font-family: inherit;
             resize: vertical;
-            transition: all 0.3s ease;
+            transition: all 200ms ease;
         }
 
         textarea {
-            min-height: 180px;
+            min-height: 200px;
+        }
+
+        textarea::placeholder,
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
         }
 
         textarea:focus, input:focus, select:focus {
             outline: none;
-            border-color: #64b5f6;
-            box-shadow: 0 0 0 3px rgba(100, 181, 246, 0.1);
+            border: 2px solid transparent;
+            border-image: var(--gradient-primary) 1;
+            box-shadow:
+                0 0 0 4px rgba(102, 126, 234, 0.1),
+                0 0 20px rgba(102, 126, 234, 0.2);
         }
 
         label {
             display: block;
-            margin-bottom: 8px;
-            color: #90caf9;
+            margin-bottom: var(--space-xs);
+            color: var(--text-secondary);
             font-weight: 500;
         }
 
         .form-group {
-            margin-bottom: 24px;
+            margin-bottom: var(--space-md);
         }
 
         .why-matters {
@@ -506,30 +597,39 @@
         /* Buttons */
         .button-group {
             display: flex;
-            gap: 12px;
-            margin-top: 32px;
+            gap: var(--space-md);
+            margin-top: var(--space-xl);
         }
 
         button {
-            padding: 14px 32px;
+            padding: 16px 40px;
             border: none;
-            border-radius: 8px;
-            font-size: 1.05em;
+            border-radius: 12px;
+            font-size: var(--text-lg);
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
             font-family: inherit;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #64b5f6 0%, #42a5f5 100%);
-            color: white;
+            background: var(--gradient-primary);
+            color: #ffffff;
             flex: 1;
+            box-shadow:
+                0 4px 20px rgba(102, 126, 234, 0.4),
+                0 0 40px rgba(102, 126, 234, 0.2);
         }
 
         .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(66, 165, 245, 0.3);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow:
+                0 6px 28px rgba(102, 126, 234, 0.5),
+                0 0 60px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:active:not(:disabled) {
+            transform: translateY(0) scale(0.98);
         }
 
         .btn-primary:disabled {
@@ -539,28 +639,30 @@
 
         .btn-secondary {
             background: rgba(255, 255, 255, 0.05);
-            color: #90caf9;
-            border: 1px solid rgba(100, 181, 246, 0.3);
+            backdrop-filter: blur(10px);
+            color: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(100, 181, 246, 0.5);
         }
 
         /* Loading state */
         .loading {
             text-align: center;
-            padding: 40px;
+            padding: var(--space-2xl);
         }
 
         .spinner {
-            width: 48px;
-            height: 48px;
-            border: 4px solid rgba(100, 181, 246, 0.2);
-            border-top-color: #64b5f6;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top-color: var(--accent-blue);
             border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto var(--space-md);
         }
 
         @keyframes spin {
@@ -570,94 +672,129 @@
         /* Reflection display */
         .reflection-box {
             background: rgba(100, 181, 246, 0.05);
-            border-left: 4px solid #64b5f6;
-            padding: 20px;
+            border-left: 4px solid var(--accent-blue);
+            padding: var(--space-xl);
             border-radius: 8px;
-            margin: 24px 0;
+            margin: var(--space-xl) 0;
         }
 
         .reflection-box h3 {
-            color: #64b5f6;
-            margin-bottom: 12px;
-            font-size: 1.1em;
+            color: var(--text-primary);
+            margin-bottom: var(--space-md);
+            font-size: var(--text-xl);
+            font-weight: 600;
         }
 
         .reflection-box ul {
-            margin-left: 20px;
-            margin-top: 12px;
+            list-style: none;
+            padding: 0;
+            margin-top: var(--space-md);
         }
 
         .reflection-box li {
-            margin: 8px 0;
-            color: #b3e5fc;
+            margin: var(--space-sm) 0;
+            color: var(--text-secondary);
+            padding-left: var(--space-lg);
+            position: relative;
+        }
+
+        .reflection-box li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--accent-blue);
         }
 
         /* Status badges */
         .badge {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
             padding: 8px 16px;
             border-radius: 20px;
             font-weight: 600;
-            font-size: 0.9em;
-            margin: 8px 8px 8px 0;
+            font-size: var(--text-sm);
+            margin: var(--space-xs) var(--space-xs) var(--space-xs) 0;
         }
 
         .badge-ready {
-            background: linear-gradient(135deg, #66bb6a 0%, #43a047 100%);
+            background: var(--status-ready);
             color: white;
+            box-shadow: 0 0 20px rgba(102, 187, 106, 0.4);
+            animation: pulse 2s ease-in-out infinite;
         }
 
         .badge-not-ready {
-            background: linear-gradient(135deg, #ef5350 0%, #e53935 100%);
+            background: var(--status-not-ready);
             color: white;
+            box-shadow: 0 0 20px rgba(255, 167, 38, 0.4);
         }
 
         .badge-approaching {
-            background: linear-gradient(135deg, #ffa726 0%, #fb8c00 100%);
+            background: var(--status-approaching);
             color: white;
+            box-shadow: 0 0 20px rgba(100, 181, 246, 0.4);
         }
 
         .badge-unknown {
-            background: rgba(255, 255, 255, 0.1);
-            color: #999;
+            background: var(--status-unknown);
+            color: white;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(102, 187, 106, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(102, 187, 106, 0.6);
+            }
         }
 
         /* SOR sections */
         .sor-section {
-            margin: 24px 0;
-            border: 1px solid rgba(100, 181, 246, 0.2);
-            border-radius: 8px;
+            margin: var(--space-md) 0;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
             overflow: hidden;
+            transition: all 250ms ease;
+        }
+
+        .sor-section:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(100, 181, 246, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         }
 
         .sor-section-header {
-            background: rgba(100, 181, 246, 0.1);
-            padding: 16px 20px;
+            padding: var(--space-lg);
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: background 0.3s;
-        }
-
-        .sor-section-header:hover {
-            background: rgba(100, 181, 246, 0.15);
+            transition: all 200ms ease;
         }
 
         .sor-section-title {
-            color: #64b5f6;
+            background: linear-gradient(135deg, #ffffff 0%, #64b5f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-weight: 600;
-            font-size: 1.1em;
+            font-size: var(--text-xl);
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
         }
 
         .sor-section-content {
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.2);
-            white-space: pre-wrap;
-            line-height: 1.7;
+            padding: 0 var(--space-lg) var(--space-lg) var(--space-lg);
+            color: var(--text-secondary);
+            line-height: 1.6;
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease;
+            transition: max-height 300ms ease;
         }
 
         .sor-section.open .sor-section-content {
@@ -669,42 +806,93 @@
         }
 
         .chevron {
-            transition: transform 0.3s;
+            transition: transform 200ms ease;
+            color: var(--text-tertiary);
         }
 
-        /* Next steps cards */
+        /* Next steps cards (Discovery Cards) */
         .cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-top: 24px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-xl);
+            margin-top: var(--space-xl);
         }
 
         .card {
-            background: rgba(100, 181, 246, 0.05);
-            border: 1px solid rgba(100, 181, 246, 0.2);
-            border-radius: 8px;
-            padding: 20px;
-            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: var(--space-xl);
+            transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
         }
 
         .card:hover {
-            background: rgba(100, 181, 246, 0.1);
-            transform: translateY(-4px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            transform: translateY(-8px);
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+            border-color: rgba(100, 181, 246, 0.3);
+        }
+
+        .card-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: var(--space-lg);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
         }
 
         .card-title {
-            color: #64b5f6;
+            font-size: var(--text-2xl);
             font-weight: 600;
-            margin-bottom: 8px;
+            background: linear-gradient(135deg, #ffffff 0%, #64b5f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--space-md);
         }
 
         .card-desc {
-            font-size: 0.9em;
-            color: #b3e5fc;
-            opacity: 0.8;
+            font-size: var(--text-base);
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: var(--space-lg);
+        }
+
+        .card-action {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            color: var(--accent-blue);
+            font-weight: 600;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 250ms ease;
+        }
+
+        .card:hover .card-action {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card-coming-soon {
+            position: absolute;
+            top: var(--space-md);
+            right: var(--space-md);
+            padding: 4px 12px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            font-size: var(--text-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-tertiary);
         }
 
         /* Error display */
@@ -728,28 +916,40 @@
         /* Responsive */
         @media (max-width: 768px) {
             .step {
-                padding: 40px 30px;
+                padding: var(--space-xl) var(--space-lg);
             }
 
             .step-title {
-                font-size: 1.8em;
+                font-size: var(--text-3xl);
+            }
+
+            .step-subtitle {
+                font-size: var(--text-base);
             }
 
             .button-group {
                 flex-direction: column;
             }
+
+            button {
+                width: 100%;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         /* Advanced settings toggle */
         .advanced-toggle {
-            margin-top: 24px;
+            margin-top: var(--space-md);
             text-align: center;
         }
 
         .advanced-link {
-            color: #64b5f6;
+            color: var(--accent-blue);
             cursor: pointer;
-            font-size: 0.9em;
+            font-size: var(--text-sm);
             text-decoration: none;
             opacity: 0.7;
         }
@@ -761,9 +961,9 @@
 
         .advanced-settings {
             display: none;
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid rgba(100, 181, 246, 0.2);
+            margin-top: var(--space-md);
+            padding-top: var(--space-md);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .advanced-settings.show {
@@ -773,8 +973,141 @@
         .settings-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-top: 16px;
+            gap: var(--space-md);
+            margin-top: var(--space-md);
+        }
+
+        /* Step-specific progress indicator (inside step content) */
+        .step-progress {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-xl);
+        }
+
+        .step-progress-label {
+            font-size: var(--text-sm);
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .step-progress-bar-container {
+            flex: 1;
+            margin: 0 var(--space-lg);
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .step-progress-bar-fill {
+            height: 100%;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.6);
+            transition: width 400ms ease-out;
+        }
+
+        /* Question card styling */
+        .question-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: var(--space-2xl);
+            position: relative;
+        }
+
+        .question-number-badge {
+            position: absolute;
+            top: var(--space-lg);
+            left: var(--space-lg);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: var(--text-lg);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .question-progress-text {
+            text-align: right;
+            font-size: var(--text-sm);
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--space-xl);
+        }
+
+        .question-dots {
+            display: flex;
+            gap: var(--space-sm);
+            justify-content: center;
+            margin-top: var(--space-xl);
+        }
+
+        .question-dot {
+            width: 40px;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 300ms ease;
+        }
+
+        .question-dot.active {
+            background: var(--gradient-primary);
+        }
+
+        /* Readiness grid (two-column) */
+        .readiness-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-xl);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .readiness-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: var(--space-xl);
+        }
+
+        .readiness-card-label {
+            font-size: var(--text-sm);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-tertiary);
+            margin-bottom: var(--space-md);
+        }
+
+        .readiness-card-description {
+            margin-top: var(--space-md);
+            font-size: var(--text-base);
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .readiness-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Focus visible states for accessibility */
+        button:focus-visible,
+        a:focus-visible,
+        input:focus-visible,
+        textarea:focus-visible,
+        select:focus-visible {
+            outline: 2px solid var(--accent-blue);
+            outline-offset: 2px;
         }
     </style>
 </head>
@@ -1009,23 +1342,37 @@
 
         <!-- Step 4: Readiness Snapshot -->
         <div class="step" id="step4">
-            <h1 class="step-title">Readiness Snapshot</h1>
-            <p class="step-subtitle">Here's where we stand</p>
+            <h1 class="step-title">Request Maturity Overview</h1>
+            <p class="step-subtitle">Current status of your test request</p>
 
-            <div style="margin: 24px 0;">
-                <div id="sorBadge"></div>
-                <div id="socBadge"></div>
+            <!-- Status Grid (Two Columns) -->
+            <div class="readiness-grid">
+                <!-- SOR Status Card -->
+                <div class="readiness-card">
+                    <h3 class="readiness-card-label">Summary of Request (SOR)</h3>
+                    <div id="sorBadge"></div>
+                    <p class="readiness-card-description" id="sorDescription"></p>
+                </div>
+
+                <!-- SOC Status Card -->
+                <div class="readiness-card">
+                    <h3 class="readiness-card-label">Summary of Concept (SOC)</h3>
+                    <div id="socBadge"></div>
+                    <p class="readiness-card-description" id="socDescription"></p>
+                </div>
             </div>
 
+            <!-- Assessment Section -->
             <div class="reflection-box">
-                <h3>Assessment:</h3>
+                <h3>Assessment</h3>
                 <ul id="reasoningList"></ul>
             </div>
 
+            <!-- Missing for SOC -->
             <div id="missingSection" style="display: none;">
-                <div class="reflection-box">
-                    <h3>Missing for SOC:</h3>
-                    <ul id="missingList"></ul>
+                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 8px; padding: var(--space-lg); margin-bottom: var(--space-2xl);">
+                    <h3 style="font-size: var(--text-lg); font-weight: 600; color: var(--text-primary); margin-bottom: var(--space-md);">To Improve SOC Readiness:</h3>
+                    <ul id="missingList" style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: var(--space-sm);"></ul>
                 </div>
             </div>
 
@@ -1036,53 +1383,81 @@
 
         <!-- Step 5: SOR Output -->
         <div class="step" id="step5">
-            <h1 class="step-title">Summary of Request (SOR)</h1>
-            <p class="step-subtitle">Your structured test request</p>
+            <!-- Header with Copy Button -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-xl);">
+                <div>
+                    <h1 class="step-title" style="margin-bottom: var(--space-sm);">Summary of Request (SOR)</h1>
+                    <p class="step-subtitle" style="margin-bottom: 0;">Your structured test request</p>
+                </div>
+                <button class="btn-secondary" onclick="copySOR()" style="flex-shrink: 0;">
+                    📋 Copy to clipboard
+                </button>
+            </div>
 
+            <!-- Intro Text -->
+            <p style="font-size: var(--text-base); color: var(--text-secondary); margin-bottom: var(--space-2xl); padding: var(--space-lg); background: rgba(100, 181, 246, 0.05); border-left: 4px solid var(--accent-blue); border-radius: 8px;">
+                This Summary of Request is a synthesized interpretation of your inputs, intended to support early planning and coordination.
+            </p>
+
+            <!-- SOR Sections -->
             <div id="sorSections"></div>
 
             <div class="button-group">
-                <button class="btn-secondary" onclick="copySOR()">Copy to clipboard</button>
-                <button class="btn-primary" onclick="goToStep(6)">Continue to next steps</button>
+                <button class="btn-secondary" onclick="goToStep(1)">← Revise Request</button>
+                <button class="btn-primary" onclick="goToStep(6)">Continue to Next Steps →</button>
             </div>
         </div>
 
         <!-- Step 6: Next Steps -->
         <div class="step" id="step6">
-            <h1 class="step-title">Next Steps</h1>
-            <p class="step-subtitle">Here's how to move forward</p>
+            <!-- Centered Heading -->
+            <h1 class="step-title" style="text-align: center; margin-bottom: var(--space-md);">Explore What Comes Next</h1>
+            <p class="step-subtitle" style="text-align: center; margin-bottom: var(--space-3xl);">
+                Optional resources to guide your journey from concept to execution.
+            </p>
 
+            <!-- Discovery Cards Grid -->
             <div class="cards-grid">
+                <!-- Card 1: Notional Lifecycle -->
                 <div class="card">
-                    <div class="card-title">📋 Notional Lifecycle</div>
-                    <div class="card-desc">Understand the typical test lifecycle and milestones</div>
+                    <div class="card-icon">📋</div>
+                    <h3 class="card-title">Notional Test Lifecycle</h3>
+                    <p class="card-desc">Explore typical phases, milestones, and decision gates for your test type.</p>
+                    <div class="card-action">Explore <span>→</span></div>
+                    <div class="card-coming-soon">In Development</div>
                 </div>
 
+                <!-- Card 2: Geographic Considerations -->
                 <div class="card">
-                    <div class="card-title">🌍 Geographic Considerations</div>
-                    <div class="card-desc">Test locations and facility capabilities</div>
+                    <div class="card-icon">🌍</div>
+                    <h3 class="card-title">Geographic & Range Options</h3>
+                    <p class="card-desc">View candidate test ranges, airspace constraints, and facility capabilities.</p>
+                    <div class="card-action">Explore <span>→</span></div>
+                    <div class="card-coming-soon">In Development</div>
                 </div>
 
+                <!-- Card 3: Platform Recommendations -->
                 <div class="card">
-                    <div class="card-title">✈️ Platform Considerations</div>
-                    <div class="card-desc">Aircraft and equipment requirements</div>
+                    <div class="card-icon">✈️</div>
+                    <h3 class="card-title">Platform & Aircraft Considerations</h3>
+                    <p class="card-desc">See typical platforms and configurations for similar test objectives.</p>
+                    <div class="card-action">Explore <span>→</span></div>
+                    <div class="card-coming-soon">In Development</div>
                 </div>
 
+                <!-- Card 4: Meet the Team -->
                 <div class="card">
-                    <div class="card-title">👥 Meet the Team</div>
-                    <div class="card-desc">Connect with your test engineering team</div>
+                    <div class="card-icon">👥</div>
+                    <h3 class="card-title">Meet the Test Team</h3>
+                    <p class="card-desc">Discover the units, roles, and expertise typically involved in your test domain.</p>
+                    <div class="card-action">Explore <span>→</span></div>
+                    <div class="card-coming-soon">In Development</div>
                 </div>
             </div>
 
-            <div id="socGuidance" style="display: none; margin-top: 32px;">
-                <div class="reflection-box">
-                    <h3>To improve SOC readiness:</h3>
-                    <ul id="socGuidanceList"></ul>
-                </div>
-            </div>
-
-            <div class="button-group" style="margin-top: 32px;">
-                <button class="btn-primary" onclick="restart()">Start another request</button>
+            <!-- Final CTA -->
+            <div style="text-align: center; margin-top: var(--space-3xl);">
+                <button class="btn-primary" onclick="restart()">Start Another Request</button>
             </div>
         </div>
 
@@ -1300,22 +1675,48 @@
         }
 
         function showReadiness() {
-            // Show SOR badge
+            // Show SOR badge and description
             const sorBadge = document.getElementById('sorBadge');
-            sorBadge.innerHTML = `<span class="badge badge-${wizardData.readiness.sor_status === 'READY' ? 'ready' : 'not-ready'}">
-                SOR: ${wizardData.readiness.sor_status}
+            const sorStatus = wizardData.readiness.sor_status;
+            const sorClass = sorStatus === 'READY' ? 'ready' : 'not-ready';
+            sorBadge.innerHTML = `<span class="badge badge-${sorClass}">
+                ${sorStatus === 'READY' ? '✓ READY' : '⏳ NOT READY'}
             </span>`;
 
-            // Show SOC badge
+            const sorDescription = document.getElementById('sorDescription');
+            sorDescription.textContent = sorStatus === 'READY'
+                ? 'All minimum viable information collected for SOR generation.'
+                : 'Additional information required before SOR can be generated.';
+
+            // Show SOC badge and description
             const socBadge = document.getElementById('socBadge');
+            const socStatus = wizardData.readiness.soc_status;
             let socClass = 'unknown';
-            if (wizardData.readiness.soc_status === 'READY') socClass = 'ready';
-            else if (wizardData.readiness.soc_status === 'APPROACHING') socClass = 'approaching';
-            else if (wizardData.readiness.soc_status === 'NOT_READY') socClass = 'not-ready';
+            let socLabel = socStatus;
 
-            socBadge.innerHTML = `<span class="badge badge-${socClass}">
-                SOC: ${wizardData.readiness.soc_status}
-            </span>`;
+            if (socStatus === 'READY') {
+                socClass = 'ready';
+                socLabel = '✓ READY';
+            } else if (socStatus === 'APPROACHING') {
+                socClass = 'approaching';
+                socLabel = 'APPROACHING';
+            } else if (socStatus === 'NOT_READY') {
+                socClass = 'not-ready';
+                socLabel = 'NOT READY';
+            }
+
+            socBadge.innerHTML = `<span class="badge badge-${socClass}">${socLabel}</span>`;
+
+            const socDescription = document.getElementById('socDescription');
+            if (socStatus === 'READY') {
+                socDescription.textContent = 'Sufficient detail for notional concept package generation.';
+            } else if (socStatus === 'APPROACHING') {
+                socDescription.textContent = 'Most planning drivers identified; some gaps remain.';
+            } else if (socStatus === 'NOT_READY') {
+                socDescription.textContent = 'Major planning drivers missing for concept-level detail.';
+            } else {
+                socDescription.textContent = 'SOC readiness evaluated after SOR completion.';
+            }
 
             // Show reasoning
             const reasoningList = document.getElementById('reasoningList');
@@ -1333,7 +1734,8 @@
                 missingList.innerHTML = '';
                 wizardData.readiness.missing_for_soc.forEach(item => {
                     const li = document.createElement('li');
-                    li.textContent = item;
+                    li.style.cssText = 'display: flex; align-items: flex-start; gap: var(--space-sm); color: var(--text-secondary); font-size: var(--text-sm);';
+                    li.innerHTML = `<span style="color: var(--accent-teal);">→</span><span>${item}</span>`;
                     missingList.appendChild(li);
                 });
             }
@@ -1345,13 +1747,13 @@
             if (wizardData.readiness.sor_status === 'NOT_READY') {
                 const btn = document.createElement('button');
                 btn.className = 'btn-primary';
-                btn.textContent = 'Back to clarify';
+                btn.textContent = 'Answer Remaining Questions →';
                 btn.onclick = () => goToStep(1);
                 buttonsContainer.appendChild(btn);
             } else {
                 const btn = document.createElement('button');
                 btn.className = 'btn-primary';
-                btn.textContent = 'Generate Summary of Request';
+                btn.textContent = 'Generate Summary of Request →';
                 btn.onclick = showSOR;
                 buttonsContainer.appendChild(btn);
             }
@@ -1365,6 +1767,18 @@
                 return;
             }
 
+            // Map section titles to icons
+            const sectionIcons = {
+                'Request Overview': '📋',
+                'Test Objectives': '🎯',
+                'Test Articles': '⚙️',
+                'Environment & Conditions': '🌍',
+                'Timeline & Urgency': '📅',
+                'Dependencies & Constraints': '🔗',
+                'Gaps & Clarifications': '❓',
+                'Recommended Next Steps': '➡️'
+            };
+
             const container = document.getElementById('sorSections');
             container.innerHTML = '';
 
@@ -1373,9 +1787,21 @@
                 div.className = 'sor-section';
                 if (idx === 0) div.classList.add('open');
 
+                // Find icon for this section (match partial titles)
+                let icon = '📄'; // default icon
+                for (const [key, value] of Object.entries(sectionIcons)) {
+                    if (section.title.includes(key) || key.includes(section.title)) {
+                        icon = value;
+                        break;
+                    }
+                }
+
                 div.innerHTML = `
                     <div class="sor-section-header" onclick="toggleSection(this)">
-                        <span class="sor-section-title">${section.title}</span>
+                        <span class="sor-section-title">
+                            <span style="font-size: var(--text-2xl);">${icon}</span>
+                            ${section.title}
+                        </span>
                         <span class="chevron">▼</span>
                     </div>
                     <div class="sor-section-content">${section.content}</div>
